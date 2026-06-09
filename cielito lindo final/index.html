@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cielito Lindo — Cabaña de montaña en Villa Yacanto, Córdoba. Viví la tranquilidad de las sierras. Reservas online.">
+  <meta name="keywords" content="cabaña, villa yacanto, córdoba, sierras, alquiler, reservas, turismo">
+  <meta property="og:title" content="Cielito Lindo — Cabaña en las Sierras de Córdoba">
+  <meta property="og:description" content="Viví la tranquilidad de las sierras de Córdoba en una cabaña premium diseñada para reconectar con la naturaleza.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8?w=1200&q=80">
+  <meta property="og:type" content="website">
+  <title>Cielito Lindo — Cabaña en las Sierras de Córdoba</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ── PAGE LOADER ── -->
+<div id="page-loader">
+  <div class="loader-logo">Cielito Lindo</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- ── TOAST CONTAINER ── -->
+<div id="toast-container"></div>
+
+<!-- ── WHATSAPP FLOTANTE ── -->
+<a href="https://wa.me/5493516000000?text=Hola!%20Me%20interesa%20reservar%20la%20cabaña%20Cielito%20Lindo."
+   target="_blank" rel="noopener" class="whatsapp-float" aria-label="Contactar por WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="navbar__logo">Cielito Lindo</a>
+
+  <div class="navbar__links" id="nav-links">
+    <a href="#sobre">Sobre nosotros</a>
+    <a href="#galeria">Galería</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#disponibilidad">Reservar</a>
+    <a href="#resenas">Reseñas</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+
+  <div class="navbar__actions">
+    <button class="btn-theme" id="theme-toggle" aria-label="Cambiar tema">🌙</button>
+    <button class="btn-nav-login" id="nav-login-btn" onclick="openLoginModal()">Ingresar</button>
+    <div class="nav-user-menu" id="nav-user-menu">
+      <span class="nav-username" id="nav-user-name"></span>
+      <a href="admin.html" class="btn-nav-admin" id="nav-admin-btn">Admin</a>
+      <button class="btn-logout" onclick="Auth.logout()">Salir</button>
+    </div>
+    <button class="btn-hamburger" id="hamburger" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<button class="close-menu" id="close-menu" aria-label="Cerrar menú">✕</button>
+
+<!-- ── HERO ── -->
+<section class="hero" id="hero">
+  <div class="hero__bg" id="hero-bg"></div>
+  <div class="hero__content">
+    <span class="hero__eyebrow">Villa Yacanto · Sierras de Córdoba</span>
+    <h1 class="hero__title">Viví la <em>tranquilidad</em><br>de las sierras</h1>
+    <p class="hero__subtitle">Una cabaña diseñada para reconectar con lo esencial. Naturaleza, silencio y confort en un mismo lugar.</p>
+    <div class="hero__actions">
+      <a href="#disponibilidad" class="btn-primary">Reservar ahora</a>
+      <a href="#galeria" class="btn-secondary">Ver galería</a>
+    </div>
+  </div>
+  <div class="hero__scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ── SOBRE LA CABAÑA ── -->
+<section id="sobre">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-image-wrap fade-up">
+        <img src="img/aboutimg.jpg"
+             alt="Cielito Lindo — Vista exterior" loading="lazy">
+        <div class="about-badge">
+          <span class="about-badge__num">★ 5.0</span>
+          <span class="about-badge__text">Huéspedes felices</span>
+        </div>
+      </div>
+      <div class="fade-up fade-up-delay-2">
+        <span class="section-label">Sobre la cabaña</span>
+        <h2 class="section-title">Un refugio <em>único</em><br>en las sierras</h2>
+        <div class="divider"></div>
+        <p class="section-subtitle" id="cabin-description">
+          Una cabaña de montaña diseñada para reconectar con lo esencial. Rodeada de naturaleza, con vistas únicas a las Sierras de Córdoba. Cada detalle fue pensado para que tu estadía sea una experiencia memorable.
+        </p>
+        <div class="about-features">
+          <div class="about-feature">
+            <span class="about-feature__icon">🌄</span>
+            <div class="about-feature__text">
+              <strong>Vistas únicas</strong>
+              <span>Panorama 360° a las sierras</span>
+            </div>
+          </div>
+          <div class="about-feature">
+            <span class="about-feature__icon">🏡</span>
+            <div class="about-feature__text">
+              <strong>Hasta 6 personas</strong>
+              <span>Espacio amplio y cómodo</span>
+            </div>
+          </div>
+          <div class="about-feature">
+            <span class="about-feature__icon">🌿</span>
+            <div class="about-feature__text">
+              <strong>Entorno natural</strong>
+              <span>Bosques y quebradas cercanas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GALERÍA ── -->
+<section class="gallery-section" id="galeria">
+  <div class="section-inner">
+    <div class="fade-up" style="text-align:center;">
+      <span class="section-label">Galería</span>
+      <h2 class="section-title">Sentí el <em>ambiente</em></h2>
+    </div>
+    <div class="gallery-grid" id="gallery-grid">
+      <!-- Renderizado por gallery.js -->
+      <div style="grid-column:span 3; text-align:center; padding:3rem;">
+        <span class="loader-sm"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <img id="lb-img" src="" alt="Galería">
+  <button class="lb-btn" id="lb-close" aria-label="Cerrar">✕</button>
+  <button class="lb-btn" id="lb-prev" aria-label="Anterior">‹</button>
+  <button class="lb-btn" id="lb-next" aria-label="Siguiente">›</button>
+  <span id="lb-counter"></span>
+</div>
+
+<!-- ── SERVICIOS ── -->
+<section id="servicios">
+  <div class="section-inner">
+    <div class="fade-up" style="text-align:center; max-width:600px; margin:0 auto 1rem;">
+      <span class="section-label">Servicios</span>
+      <h2 class="section-title">Todo lo que <em>necesitás</em></h2>
+      <p class="section-subtitle" style="margin:0 auto;">Equipada con todo para que solo tengas que llegar y disfrutar.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card fade-up fade-up-delay-1"><div class="service-card__icon">📶</div><div class="service-card__name">WiFi de alta velocidad</div></div>
+      <div class="service-card fade-up fade-up-delay-1"><div class="service-card__icon">🏊</div><div class="service-card__name">Pileta privada</div></div>
+      <div class="service-card fade-up fade-up-delay-2"><div class="service-card__icon">🔥</div><div class="service-card__name">Asador con parrilla</div></div>
+      <div class="service-card fade-up fade-up-delay-2"><div class="service-card__icon">🍳</div><div class="service-card__name">Cocina equipada</div></div>
+      <div class="service-card fade-up fade-up-delay-3"><div class="service-card__icon">🚗</div><div class="service-card__name">Estacionamiento</div></div>
+      <div class="service-card fade-up fade-up-delay-3"><div class="service-card__icon">❄️</div><div class="service-card__name">Aire acondicionado</div></div>
+      <div class="service-card fade-up fade-up-delay-1"><div class="service-card__icon">🌡️</div><div class="service-card__name">Calefacción</div></div>
+      <div class="service-card fade-up fade-up-delay-2"><div class="service-card__icon">📺</div><div class="service-card__name">Smart TV 4K</div></div>
+      <div class="service-card fade-up fade-up-delay-3"><div class="service-card__icon">⛰️</div><div class="service-card__name">Vista a las sierras</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DISPONIBILIDAD Y RESERVA ── -->
+<section class="booking-section" id="disponibilidad">
+  <div class="section-inner">
+    <div class="fade-up">
+      <span class="section-label">Disponibilidad</span>
+      <h2 class="section-title">Elegí tus <em>fechas</em></h2>
+      <p class="section-subtitle">Seleccioná el día de llegada y salida. Los días marcados ya están reservados.</p>
+    </div>
+    <div class="booking-layout">
+      <!-- Calendario -->
+      <div class="fade-up fade-up-delay-1">
+        <div id="calendar-container"></div>
+        <div class="cal-legend">
+          <span><span class="legend-dot legend-dot--blocked"></span> No disponible</span>
+          <span><span class="legend-dot legend-dot--available"></span> Check-in / Check-out</span>
+          <span><span class="legend-dot legend-dot--selected"></span> Rango seleccionado</span>
+        </div>
+      </div>
+      <!-- Formulario de reserva -->
+      <div class="fade-up fade-up-delay-2">
+        <div class="booking-card">
+          <div class="booking-card__title">Reservar cabaña</div>
+          <div class="booking-card__price">desde <strong id="price-per-night">$45.000</strong> / noche</div>
+          <div class="booking-dates-display">
+            <div class="booking-date-box" id="checkin-box">
+              <span class="booking-date-box__label">Check-in</span>
+              <span class="booking-date-box__value" id="checkin-display">Seleccioná</span>
+            </div>
+            <div class="booking-date-box" id="checkout-box">
+              <span class="booking-date-box__label">Check-out</span>
+              <span class="booking-date-box__value" id="checkout-display">Seleccioná</span>
+            </div>
+          </div>
+          <div class="booking-summary" id="booking-summary">
+            <div class="booking-summary-row">
+              <span id="nights-label">— noches</span>
+              <span id="nights-price">$—</span>
+            </div>
+            <div class="booking-summary-row total">
+              <span>Total</span>
+              <span id="total-price">$—</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="book-persons">Cantidad de personas</label>
+            <select class="form-input" id="book-persons">
+              <option value="1">1 persona</option>
+              <option value="2" selected>2 personas</option>
+              <option value="3">3 personas</option>
+              <option value="4">4 personas</option>
+              <option value="5">5 personas</option>
+              <option value="6">6 personas</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="book-phone">Teléfono de contacto</label>
+            <input type="tel" class="form-input" id="book-phone" placeholder="+54 9 351 000 0000">
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="book-notes">Notas (opcional)</label>
+            <textarea class="form-input" id="book-notes" rows="3" placeholder="Llegada estimada, necesidades especiales..."></textarea>
+          </div>
+          <button class="btn-book" id="btn-book" onclick="handleBooking()">
+            Confirmar reserva
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── RESEÑAS ── -->
+<section id="resenas">
+  <div class="section-inner">
+    <div class="fade-up">
+      <span class="section-label">Reseñas</span>
+      <h2 class="section-title">Lo que dicen <em>nuestros huéspedes</em></h2>
+    </div>
+    <div class="reviews-header fade-up">
+      <div class="reviews-score">
+        <div class="reviews-score__num" id="reviews-avg">5.0</div>
+        <div class="reviews-score__stars" id="reviews-stars">★★★★★</div>
+        <div class="reviews-score__count" id="reviews-count">cargando...</div>
+      </div>
+      <p class="section-subtitle">Experiencias reales de familias y parejas que eligieron las sierras de Córdoba para reconectar.</p>
+    </div>
+    <div class="reviews-grid" id="reviews-container">
+      <div style="grid-column:1/-1;text-align:center;padding:3rem;"><span class="loader-sm"></span></div>
+    </div>
+
+    <!-- Formulario de reseña -->
+    <div class="review-form-section fade-up" id="review-form-wrap">
+      <div class="review-form-title">Dejá tu reseña</div>
+      <div class="star-rating" id="star-rating">
+        <button class="star-input active" data-star="1" aria-label="1 estrella">★</button>
+        <button class="star-input active" data-star="2" aria-label="2 estrellas">★</button>
+        <button class="star-input active" data-star="3" aria-label="3 estrellas">★</button>
+        <button class="star-input active" data-star="4" aria-label="4 estrellas">★</button>
+        <button class="star-input active" data-star="5" aria-label="5 estrellas">★</button>
+      </div>
+      <div class="form-field">
+        <textarea class="form-input" id="review-comment" rows="4"
+          placeholder="Contá tu experiencia en Cielito Lindo..."></textarea>
+      </div>
+      <button class="btn-submit" id="submit-review-btn" onclick="Reviews.submitReview()">
+        Publicar reseña
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ── UBICACIÓN ── -->
+<section class="location-section" id="ubicacion">
+  <div class="section-inner">
+    <div class="fade-up" style="text-align:center;">
+      <span class="section-label">Ubicación</span>
+      <h2 class="section-title">Encontranos en <em>Villa Yacanto</em></h2>
+      <p class="section-subtitle" style="margin:0 auto;">Sierras de Córdoba, Argentina. A solo 2 horas de la ciudad de Córdoba.</p>
+    </div>
+    <div class="map-container fade-up">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13396.77!2d-64.8597!3d-32.0874!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ce4b5fd35d4e31%3A0x1c7d1f1234567890!2sVilla%20Yacanto%2C%20C%C3%B3rdoba!5e0!3m2!1ses!2sar!4v1700000000000"
+        allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+        title="Mapa Villa Yacanto Córdoba">
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACTO ── -->
+<section id="contacto">
+  <div class="section-inner">
+    <div class="contact-grid">
+      <div class="contact-info fade-up">
+        <span class="section-label">Contacto</span>
+        <h2 class="section-title">¿Tenés <em>preguntas</em>?</h2>
+        <div class="divider"></div>
+        <p class="section-subtitle" style="margin-bottom:2.5rem;">Estamos disponibles para ayudarte a planificar tu estadía perfecta en las sierras.</p>
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-item-title">Ubicación</div>
+            <div class="contact-item-value">Villa Yacanto, Córdoba, Argentina</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📱</div>
+          <div>
+            <div class="contact-item-title">WhatsApp</div>
+            <div class="contact-item-value">+54 9 351 600-0000</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <div class="contact-item-title">Email</div>
+            <div class="contact-item-value">hola@cielitolindo.com.ar</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🕐</div>
+          <div>
+            <div class="contact-item-title">Horario de atención</div>
+            <div class="contact-item-value">Lunes a Domingo · 9:00 – 21:00</div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form fade-up fade-up-delay-2">
+        <div class="form-field">
+          <label class="form-label" for="contact-name">Nombre completo</label>
+          <input type="text" class="form-input" id="contact-name" placeholder="Tu nombre">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="contact-email">Email</label>
+          <input type="email" class="form-input" id="contact-email" placeholder="tu@email.com">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="contact-phone">Teléfono</label>
+          <input type="tel" class="form-input" id="contact-phone" placeholder="+54 9 ...">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="contact-msg">Mensaje</label>
+          <textarea class="form-input" id="contact-msg" rows="5"
+            placeholder="Contanos qué necesitás..."></textarea>
+        </div>
+        <button class="btn-submit" onclick="sendContactForm()">Enviar mensaje</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+
+<section id="yacanto" class="gallery-section">
+  <div class="section-inner">
+    <div class="fade-up" style="text-align:center;">
+      <span class="section-label">Villa Yacanto</span>
+      <h2 class="section-title">Qué hacer en <em>Yacanto</em></h2>
+      <p class="section-subtitle">Experiencias y lugares para disfrutar durante tu estadía.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80" style="width:100%;height:180px;object-fit:cover;border-radius:18px;margin-bottom:1rem;">
+        <div class="service-card__name">Senderismo en el Cerro Champaquí</div>
+        <p>Descubrí paisajes únicos y recorridos guiados entre montañas.</p>
+        <a href="https://maps.app.goo.gl/Lmy6X31DyHxZQ6G19" target="_blank">Ver ubicación</a>
+      </div>
+      <div class="service-card">
+        <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80" style="width:100%;height:180px;object-fit:cover;border-radius:18px;margin-bottom:1rem;">
+        <div class="service-card__name">Ríos y playas naturales</div>
+        <p>Ideal para descansar, hacer picnic y disfrutar del agua cristalina.</p>
+      </div>
+      <div class="service-card">
+        <img src="https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800&q=80" style="width:100%;height:180px;object-fit:cover;border-radius:18px;margin-bottom:1rem;">
+        <div class="service-card__name">Gastronomía serrana</div>
+        <p>Probá sabores regionales en restaurantes y casas de té de Villa Yacanto.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Cielito Lindo</div>
+        <p class="footer-desc">Una cabaña en las Sierras de Córdoba para reconectar con la naturaleza, el silencio y lo que realmente importa.</p>
+      </div>
+      <div>
+        <div class="footer-heading">Navegación</div>
+        <ul class="footer-links">
+          <li><a href="#sobre">Sobre nosotros</a></li>
+          <li><a href="#galeria">Galería</a></li>
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#disponibilidad">Reservas</a></li>
+          <li><a href="#resenas">Reseñas</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Contacto</div>
+        <ul class="footer-links">
+          <li><a href="https://wa.me/5493516000000" target="_blank">WhatsApp</a></li>
+          <li><a href="mailto:hola@cielitolindo.com.ar">Email</a></li>
+          <li><a href="#ubicacion">Cómo llegar</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Cielito Lindo. Todos los derechos reservados.</span>
+      <span>Villa Yacanto, Córdoba, Argentina 🇦🇷</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ── MODAL LOGIN/REGISTRO ── -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal">
+    <button class="modal__close" onclick="closeLoginModal()" aria-label="Cerrar">✕</button>
+    <div class="modal__title">Bienvenido</div>
+    <div class="modal__subtitle">Ingresá para poder reservar y dejar reseñas</div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchAuthTab('login', this)">Ingresar</button>
+      <button class="modal-tab" onclick="switchAuthTab('register', this)">Registrarse</button>
+    </div>
+
+    <!-- Login Tab -->
+    <div class="modal-tab-content active" id="tab-login">
+      <button class="btn-google" onclick="Auth.loginWithGoogle().then(r => r.ok && closeLoginModal())">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continuar con Google
+      </button>
+      <div class="divider-or">o con email</div>
+      <div class="form-field">
+        <label class="form-label" for="login-email">Email</label>
+        <input type="email" class="form-input" id="login-email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="login-password">Contraseña</label>
+        <input type="password" class="form-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-submit" onclick="handleLogin()">Ingresar</button>
+    </div>
+
+    <!-- Register Tab -->
+    <div class="modal-tab-content" id="tab-register">
+      <div class="form-field">
+        <label class="form-label" for="reg-name">Nombre completo</label>
+        <input type="text" class="form-input" id="reg-name" placeholder="Tu nombre" autocomplete="name">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="reg-email">Email</label>
+        <input type="email" class="form-input" id="reg-email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="reg-phone">Teléfono</label>
+        <input type="tel" class="form-input" id="reg-phone" placeholder="+54 9 351 000 0000" autocomplete="tel">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="reg-password">Contraseña</label>
+        <input type="password" class="form-input" id="reg-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <button class="btn-submit" onclick="handleRegister()">Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── FIREBASE SDKs ── -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+
+<!-- ── APP SCRIPTS ── -->
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/bookings.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+/* ============================================================
+   ADMIN.CSS — Estilos adicionales para el panel de admin
+   ============================================================ */
+
+.admin-mobile-toggle {
+  display: none;
+  font-size: 1.4rem;
+  color: var(--wood-dark);
+  cursor: pointer;
+  background: var(--white);
+  border: 1px solid var(--beige-dark);
+  width: 40px; height: 40px;
+  border-radius: var(--radius);
+  align-items: center; justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .admin-mobile-toggle { display: flex; }
+  .admin-layout { display: block; }
+  .admin-main { margin-left: 0; padding: 1rem; }
+  .admin-header { flex-wrap: wrap; gap: .8rem; }
+  .admin-sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    box-shadow: var(--shadow-lg);
+  }
+  .admin-sidebar.open { transform: translateX(0); }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .admin-main { padding: .8rem; }
+}
+
+/* Admin nav bottom items */
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 90px);
+  overflow-y: auto;
+  padding-bottom: 1rem;
+}
+
+.admin-nav-item:last-child,
+.admin-nav-item:nth-last-child(2) {
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 1rem;
+}
+.admin-nav-item:last-child { margin-top: 0; border-top: none; }
+
+/* Reviews in admin */
+.admin-review-row {
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--beige);
+}
+.admin-review-row:last-child { border-bottom: none; }
+.admin-review-info {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  flex-wrap: wrap;
+  margin-bottom: .4rem;
+}
+
+/* Calendar in admin */
+#admin-calendar .calendar {
+  max-width: 500px;
+}
+
+/* Upload zone drag hover */
+.upload-zone.drag-over {
+  border-color: var(--wood);
+  background: var(--beige);
+}

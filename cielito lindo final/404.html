@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Cielito Lindo</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1400&q=70') center/cover;
+      filter: brightness(.35);
+    }
+    .notfound {
+      max-width: 520px;
+    }
+    .notfound__num {
+      font-family: var(--font-display);
+      font-size: clamp(6rem, 18vw, 10rem);
+      font-weight: 300;
+      color: var(--sand);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .notfound__title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+    .notfound__text {
+      color: rgba(255,255,255,.65);
+      font-size: 1rem;
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="notfound">
+    <div class="notfound__num">404</div>
+    <div class="notfound__title">Perdidos en las sierras</div>
+    <p class="notfound__text">
+      La página que buscás no existe o fue movida.<br>
+      Pero las sierras siempre te esperan.
+    </p>
+    <a href="index.html" class="btn-primary" style="display:inline-block;">Volver al inicio</a>
+  </div>
+
+  <script>
+    const t = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  </script>
+</body>
+</html>

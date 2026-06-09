@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel Admin — Cielito Lindo</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-page">
+
+<div id="toast-container"></div>
+
+<!-- ── LOADER ── -->
+<div id="page-loader">
+  <div class="loader-logo">Cielito Lindo</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- ── AUTH GUARD ── -->
+<div id="auth-guard" style="display:none; position:fixed; inset:0; background:var(--beige); z-index:9998; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
+  <div style="font-family:var(--font-display);font-size:2rem;color:var(--wood-dark);">Acceso restringido</div>
+  <p style="color:var(--gray);">Esta página es solo para administradores.</p>
+  <a href="index.html" style="padding:.8rem 2rem;background:var(--wood);color:white;border-radius:99px;font-size:.9rem;">Volver al inicio</a>
+</div>
+
+<div id="admin-app" style="display:none;">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar__logo">
+      Cielito Lindo
+      <div class="admin-sidebar__subtitle">Panel de Administración</div>
+    </div>
+    <nav class="admin-nav">
+      <div class="admin-nav-item active" data-tab="dashboard">
+        <span class="admin-nav-item__icon">📊</span> Dashboard
+      </div>
+      <div class="admin-nav-item" data-tab="bookings">
+        <span class="admin-nav-item__icon">📅</span> Reservas
+      </div>
+      <div class="admin-nav-item" data-tab="calendar">
+        <span class="admin-nav-item__icon">🗓️</span> Calendario
+      </div>
+      <div class="admin-nav-item" data-tab="block">
+        <span class="admin-nav-item__icon">🔒</span> Bloquear fechas
+      </div>
+      <div class="admin-nav-item" data-tab="settings">
+        <span class="admin-nav-item__icon">⚙️</span> Configuración
+      </div>
+      <div class="admin-nav-item" data-tab="gallery-tab">
+        <span class="admin-nav-item__icon">🖼️</span> Galería
+      </div>
+      <div class="admin-nav-item" data-tab="reviews-tab">
+        <span class="admin-nav-item__icon">⭐</span> Reseñas
+      </div>
+      <div class="admin-nav-item" style="margin-top:auto;" onclick="goToSite()">
+        <span class="admin-nav-item__icon">🏠</span> Ver sitio
+      </div>
+      <div class="admin-nav-item" onclick="Auth.logout().then(()=>location.href='index.html')">
+        <span class="admin-nav-item__icon">🚪</span> Cerrar sesión
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="admin-main">
+    <div class="admin-header">
+      <button class="admin-mobile-toggle" id="sidebar-toggle" aria-label="Menú">☰</button>
+      <h1 class="admin-header__title" id="admin-page-title">Dashboard</h1>
+      <div style="display:flex;align-items:center;gap:.8rem;">
+        <span style="font-size:.85rem;color:var(--gray);" id="admin-user-name"></span>
+        <button class="btn-theme" id="admin-theme-toggle" aria-label="Tema">🌙</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD TAB -->
+    <div class="admin-tab-content active" id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__label">Reservas activas</div>
+          <div class="stat-card__value" id="stat-active">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Este mes</div>
+          <div class="stat-card__value" id="stat-month">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Ingresos totales</div>
+          <div class="stat-card__value" id="stat-revenue">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Total reservas</div>
+          <div class="stat-card__value" id="stat-total">—</div>
+        </div>
+      </div>
+
+      <!-- Próximas reservas -->
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Próximas reservas</div>
+          <button class="filter-btn active" onclick="Admin.init()">↻ Actualizar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Huésped</th>
+                <th>Email</th>
+                <th>Ingreso</th>
+                <th>Salida</th>
+                <th>Personas</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-tbody">
+              <tr><td colspan="8" class="loading-row"><span class="loader-sm"></span> Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS TAB -->
+    <div class="admin-tab-content" id="tab-bookings">
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Gestión de Reservas</div>
+          <div class="filter-btns">
+            <button class="filter-btn active" data-filter="all">Todas</button>
+            <button class="filter-btn" data-filter="pendiente">Pendientes</button>
+            <button class="filter-btn" data-filter="confirmada">Confirmadas</button>
+            <button class="filter-btn" data-filter="cancelada">Canceladas</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Huésped</th><th>Email</th>
+                <th>Ingreso</th><th>Salida</th><th>Personas</th>
+                <th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-tbody-full">
+              <tr><td colspan="8" class="loading-row"><span class="loader-sm"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR TAB -->
+    <div class="admin-tab-content" id="tab-calendar">
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Calendario de ocupación</div>
+        </div>
+        <div id="admin-calendar"></div>
+      </div>
+    </div>
+
+    <!-- BLOCK DATES TAB -->
+    <div class="admin-tab-content" id="tab-block">
+      <div class="admin-card" style="max-width:520px;">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Bloquear fechas</div>
+        </div>
+        <p style="font-size:.9rem;color:var(--gray);margin-bottom:1.5rem;">
+          Bloqueá fechas para mantenimiento, uso personal u otras razones.
+        </p>
+        <div class="admin-form-row">
+          <div class="form-field">
+            <label class="form-label">Fecha inicio</label>
+            <input type="date" class="form-input" id="block-start">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Fecha fin</label>
+            <input type="date" class="form-input" id="block-end">
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Motivo (opcional)</label>
+          <input type="text" class="form-input" id="block-reason" placeholder="Mantenimiento, uso personal...">
+        </div>
+        <button class="btn-save" onclick="Admin.blockDatesHandler()" style="width:100%;padding:1rem;border-radius:var(--radius);">
+          Bloquear fechas
+        </button>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="admin-tab-content" id="tab-settings">
+      <div class="admin-card" style="max-width:500px;">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Precio por noche</div>
+        </div>
+        <p style="font-size:.9rem;color:var(--gray);margin-bottom:1.5rem;">
+          Actualizá el precio por noche de la cabaña.
+        </p>
+        <div class="price-input-wrap">
+          <span style="font-size:1.1rem;color:var(--gray);">$</span>
+          <input type="number" id="admin-price-input" min="1000" step="500" placeholder="45000">
+          <button class="btn-save" onclick="Admin.updatePrice()">Guardar precio</button>
+        </div>
+      </div>
+
+      <div class="admin-card" style="max-width:500px;margin-top:1.5rem;">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Descripción de la cabaña</div>
+        </div>
+        <div class="form-field">
+          <textarea class="form-input" id="admin-desc" rows="4"
+            placeholder="Descripción de la cabaña..."></textarea>
+        </div>
+        <button class="btn-save" onclick="saveDescription()" style="width:100%;padding:.9rem;border-radius:var(--radius);">
+          Guardar descripción
+        </button>
+      </div>
+    </div>
+
+    <!-- GALLERY TAB -->
+    <div class="admin-tab-content" id="tab-gallery-tab">
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Imágenes de la cabaña</div>
+        </div>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('img-upload').click()">
+          <div class="upload-zone__icon">📸</div>
+          <div class="upload-zone__text">
+            <strong>Hacé clic para subir imágenes</strong><br>
+            <span style="font-size:.82rem;color:var(--gray-light);">JPG, PNG, WebP — Máx. 5MB</span>
+          </div>
+        </div>
+        <input type="file" id="img-upload" accept="image/*" style="display:none;"
+          onchange="handleImageUpload(event)">
+        <div class="upload-progress-bar">
+          <div id="upload-progress"></div>
+        </div>
+        <div class="admin-gallery" id="admin-gallery">
+          <span class="loader-sm"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS TAB -->
+    <div class="admin-tab-content" id="tab-reviews-tab">
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Reseñas de huéspedes</div>
+          <button class="filter-btn active" onclick="loadAdminReviews()">↻ Actualizar</button>
+        </div>
+        <div id="admin-reviews-list">
+          <div style="text-align:center;padding:2rem;"><span class="loader-sm"></span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- /admin-app -->
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/bookings.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/admin-page.js"></script>
+</body>
+</html>
