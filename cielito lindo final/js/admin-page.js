@@ -197,7 +197,10 @@ uploadZone?.addEventListener('drop', e => {
 
 // ── Save description ──────────────────────────────────────
 async function loadAdminDesc() {
-  const doc = await db.collection('cabins').doc('cielito-lindo').get();
+  import { doc, getDoc } from "firebase/firestore";
+
+const ref = doc(db, "cabins", "cielito-lindo");
+const snap = await getDoc(ref);
   const el = document.getElementById('admin-desc');
   if (el && doc.exists) el.value = doc.data().descripcion || '';
 }

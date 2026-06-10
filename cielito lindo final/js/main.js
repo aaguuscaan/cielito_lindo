@@ -2,6 +2,7 @@
 // MAIN.JS — Lógica principal del sitio Cielito Lindo
 // ============================================================
 import { Auth } from "./auth.js";
+import { collection, addDoc } from "firebase/firestore";
 
 document.addEventListener("DOMContentLoaded", async () => {
   Auth.init();
@@ -27,7 +28,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ── Cargar datos de cabaña ────────────────────────────────
 async function loadCabinData() {
   try {
-    const doc = await db.collection('cabins').doc('cielito-lindo').get();
+    import { doc, getDoc } from "firebase/firestore";
+
+const ref = doc(db, "cabins", "cielito-lindo");
+const snap = await getDoc(ref);
     if (!doc.exists) return;
     const data = doc.data();
 
@@ -147,11 +151,14 @@ async function sendContactForm() {
   }
 
   try {
-    await db.collection('contactMessages').add({
-      nombre: name, email, telefono: phone, mensaje: msg,
-      fecha: firebase.firestore.FieldValue.serverTimestamp(),
-      leido: false
-    });
+    await addDoc(collection(db, "contactMessages"), {
+  nombre: name,
+  email,
+  telefono: phone,
+  mensaje: msg,
+  fecha: serverTimestamp(),
+  leido: false
+});
     Toast.show('¡Mensaje enviado! Te respondemos pronto.', 'success');
     document.getElementById('contact-name').value = '';
     document.getElementById('contact-email').value = '';

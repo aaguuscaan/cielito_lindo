@@ -78,7 +78,8 @@ const Bookings = (() => {
         precioTotal,
         notas: notas || '',
         estado: 'pendiente',
-        creadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+        creadoEn: import { serverTimestamp } from "firebase/firestore";
+serverTimestamp(),
         cabinId: 'cielito-lindo'
       });
       Toast.show('¡Reserva solicitada con éxito!', 'success');
@@ -133,7 +134,8 @@ const Bookings = (() => {
       notas: motivo || 'Bloqueo manual',
       estado: 'confirmada',
       esBloqueo: true,
-      creadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+      creadoEn: import { serverTimestamp } from "firebase/firestore";
+serverTimestamp(),
       cabinId: 'cielito-lindo'
     });
     Toast.show('Fechas bloqueadas', 'success');

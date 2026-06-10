@@ -8,7 +8,10 @@ const Gallery = (() => {
 
   async function init() {
     // Cargar imágenes de Firestore
-    const doc = await db.collection('cabins').doc('cielito-lindo').get();
+    import { doc, getDoc } from "firebase/firestore";
+
+const ref = doc(db, "cabins", "cielito-lindo");
+const snap = await getDoc(ref);
     const firestoreImages = doc.exists ? (doc.data().imagenes || []) : [];
 
     // Imágenes de placeholder si no hay imágenes en Firestore
@@ -168,7 +171,8 @@ const Reviews = (() => {
         usuario: user.displayName || user.email.split('@')[0],
         comentario,
         puntuacion,
-        fecha: firebase.firestore.FieldValue.serverTimestamp()
+        fecha: import { serverTimestamp } from "firebase/firestore";
+serverTimestamp()
       });
       Toast.show('¡Gracias por tu reseña!', 'success');
       document.getElementById('review-comment').value = '';

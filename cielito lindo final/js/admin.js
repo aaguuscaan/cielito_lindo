@@ -103,7 +103,10 @@ const Admin = (() => {
   async function loadCurrentPrice() {
     const input = document.getElementById('admin-price-input');
     if (!input) return;
-    const doc = await db.collection('cabins').doc('cielito-lindo').get();
+    import { doc, getDoc } from "firebase/firestore";
+
+const ref = doc(db, "cabins", "cielito-lindo");
+const snap = await getDoc(ref);
     if (doc.exists) input.value = doc.data().precio;
   }
 
@@ -154,7 +157,10 @@ const Admin = (() => {
   async function loadGalleryAdmin() {
     const container = document.getElementById('admin-gallery');
     if (!container) return;
-    const doc = await db.collection('cabins').doc('cielito-lindo').get();
+    import { doc, getDoc } from "firebase/firestore";
+
+const ref = doc(db, "cabins", "cielito-lindo");
+const snap = await getDoc(ref);
     const imgs = doc.data()?.imagenes || [];
     if (!imgs.length) {
       container.innerHTML = '<p class="empty-note">No hay imágenes aún</p>';
