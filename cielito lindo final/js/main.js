@@ -1,7 +1,11 @@
 // ============================================================
 // MAIN.JS — Lógica principal del sitio Cielito Lindo
 // ============================================================
+import { initAuth } from "./auth.js";
 
+document.addEventListener("DOMContentLoaded", () => {
+  initAuth();
+});
 // ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   // Loader

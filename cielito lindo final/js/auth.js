@@ -1,6 +1,11 @@
 // ============================================================
 // AUTH.JS - Autenticación Firebase
 // ============================================================
+import { auth } from "./firebase-config.js";
+
+export function initAuth() {
+  console.log("Auth listo:", auth);
+}
 
 const Auth = (() => {
   let currentUser = null;
