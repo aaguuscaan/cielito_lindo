@@ -1,49 +1,28 @@
 // ============================================================
 // MAIN.JS — Lógica principal del sitio Cielito Lindo
 // ============================================================
-import { initAuth } from "./auth.js";
+import { Auth } from "./auth.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  initAuth();
-});
-// ── Init ──────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
-  // Loader
-  setTimeout(() => {
-    document.getElementById('page-loader')?.classList.add('hidden');
-  }, 1800);
-
-  // Auth observer
+document.addEventListener("DOMContentLoaded", async () => {
   Auth.init();
 
-  // Cargar datos de la cabaña
+  setTimeout(() => {
+    document.getElementById("page-loader")?.classList.add("hidden");
+  }, 1800);
+
   loadCabinData();
-
-  // Galería
   await Gallery.init();
-
-  // Calendario
-  await Calendar.init('calendar-container', onDatesSelected);
-
-  // Reseñas
+  await Calendar.init("calendar-container", onDatesSelected);
   await Reviews.loadReviews();
   Reviews.initStarInput();
 
-  // Scroll animations
   initScrollAnimations();
-
-  // Navbar sticky
   initNavbar();
-
-  // Theme
   initTheme();
-
-  // Hamburger
   initHamburger();
-
-  // Parallax hero
   initParallax();
 });
+
 
 // ── Cargar datos de cabaña ────────────────────────────────
 async function loadCabinData() {
