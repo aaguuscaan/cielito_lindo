@@ -1,4 +1,5 @@
-import { auth } from "./firebase-config.js";
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 let currentUser = null;
 let userRole = null;
