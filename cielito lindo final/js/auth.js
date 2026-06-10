@@ -1,53 +1,84 @@
-const auth = firebase.auth();
-const db = firebase.firestore();
+import {
+  auth,
+  db
+} from "./firebase-config.js";
+
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  updateProfile
+} from "firebase/auth";
+
+import {
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp
+} from "firebase/firestore";
 
 let currentUser = null;
 let userRole = null;
 
-// Observer
+// ─────────────────────────────────────────────
+// AUTH OBSERVER
+// ─────────────────────────────────────────────
 function init(onAuthChange) {
   auth.onAuthStateChanged(async (user) => {
     if (user) {
       currentUser = user;
       userRole = await getUserRole(user.uid);
+
       onAuthChange?.(user, userRole);
       updateNavUI(user, userRole);
     } else {
       currentUser = null;
       userRole = null;
+
       onAuthChange?.(null, null);
       updateNavUI(null, null);
     }
   });
 }
 
+// ─────────────────────────────────────────────
+// ROLE
+// ─────────────────────────────────────────────
 async function getUserRole(uid) {
   try {
-    const doc = await db.collection("users").doc(uid).get();
-    return doc.exists ? doc.data().role : "client";
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+
+    return snap.exists() ? snap.data().role : "client";
   } catch {
     return "client";
   }
 }
 
+// ─────────────────────────────────────────────
 // REGISTER
+// ─────────────────────────────────────────────
 async function register({ nombre, email, telefono, password }) {
   try {
-    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-    await cred.user.updateProfile({ displayName: nombre });
+    await updateProfile(cred.user, {
+      displayName: nombre
+    });
 
-    await db.collection("users").doc(cred.user.uid).set({
+    await setDoc(doc(db, "users", cred.user.uid), {
       nombre,
       email,
-      telefono,
+      telefono: telefono || "",
       role: "client",
-      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+      creadoEn: serverTimestamp()
     });
 
     Toast.show("¡Cuenta creada con éxito!", "success");
-    return { ok: true, user: cred.user };
 
+    return { ok: true, user: cred.user };
   } catch (e) {
     const msg = firebaseErrorMsg(e.code);
     Toast.show(msg, "error");
@@ -55,53 +86,67 @@ async function register({ nombre, email, telefono, password }) {
   }
 }
 
+// ─────────────────────────────────────────────
 // LOGIN
+// ─────────────────────────────────────────────
 async function login(email, password) {
   try {
-    const cred = await auth.signInWithEmailAndPassword(email, password);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+
     Toast.show("¡Bienvenido de vuelta!", "success");
+
     return { ok: true, user: cred.user };
   } catch (e) {
     const msg = firebaseErrorMsg(e.code);
     Toast.show(msg, "error");
+
     return { ok: false, error: msg };
   }
 }
 
-// GOOGLE
+// ─────────────────────────────────────────────
+// GOOGLE LOGIN
+// ─────────────────────────────────────────────
 async function loginWithGoogle() {
   try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    const cred = await auth.signInWithPopup(provider);
+    const provider = new GoogleAuthProvider();
+    const cred = await signInWithPopup(auth, provider);
 
-    const userDoc = await db.collection("users").doc(cred.user.uid).get();
+    const ref = doc(db, "users", cred.user.uid);
+    const snap = await getDoc(ref);
 
-    if (!userDoc.exists) {
-      await db.collection("users").doc(cred.user.uid).set({
+    if (!snap.exists()) {
+      await setDoc(ref, {
         nombre: cred.user.displayName,
         email: cred.user.email,
         telefono: "",
         role: "client",
-        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        creadoEn: serverTimestamp()
       });
     }
 
     Toast.show("¡Bienvenido!", "success");
-    return { ok: true, user: cred.user };
 
-  } catch {
+    return { ok: true, user: cred.user };
+  } catch (e) {
+    console.error(e);
     Toast.show("Error al iniciar con Google", "error");
+
     return { ok: false };
   }
 }
 
+// ─────────────────────────────────────────────
 // LOGOUT
+// ─────────────────────────────────────────────
 async function logout() {
-  await auth.signOut();
+  await signOut(auth);
   Toast.show("Sesión cerrada", "info");
 }
 
+// ─────────────────────────────────────────────
 // NAV UI
+// ─────────────────────────────────────────────
 function updateNavUI(user, role) {
   const loginBtn = document.getElementById("nav-login-btn");
   const userMenu = document.getElementById("nav-user-menu");
@@ -115,18 +160,28 @@ function updateNavUI(user, role) {
 
     if (userMenu) {
       userMenu.style.display = "flex";
-      if (userName) userName.textContent = user.displayName || user.email.split("@")[0];
     }
 
-    if (adminBtn) adminBtn.style.display = role === "admin" ? "flex" : "none";
+    if (userName) {
+      userName.textContent =
+        user.displayName || user.email.split("@")[0];
+    }
+
+    if (adminBtn) {
+      adminBtn.style.display = role === "admin" ? "flex" : "none";
+    }
 
   } else {
     loginBtn.style.display = "flex";
+
     if (userMenu) userMenu.style.display = "none";
     if (adminBtn) adminBtn.style.display = "none";
   }
 }
 
+// ─────────────────────────────────────────────
+// ERRORS
+// ─────────────────────────────────────────────
 function firebaseErrorMsg(code) {
   const msgs = {
     "auth/user-not-found": "No existe una cuenta con ese email",
@@ -137,10 +192,13 @@ function firebaseErrorMsg(code) {
     "auth/too-many-requests": "Demasiados intentos. Intentá más tarde",
     "auth/network-request-failed": "Error de conexión"
   };
+
   return msgs[code] || "Ocurrió un error";
 }
 
-// EXPORT ÚNICO LIMPIO
+// ─────────────────────────────────────────────
+// EXPORT
+// ─────────────────────────────────────────────
 export const Auth = {
   init,
   register,
