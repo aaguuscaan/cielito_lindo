@@ -3,168 +3,276 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ingresar — Cielito Lindo</title>
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel Admin — Cielito Lindo</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>">
   <link rel="stylesheet" href="css/styles.css">
-  <style>
-    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background: linear-gradient(135deg, var(--wood-dark) 0%, var(--olive) 100%);
-      opacity: .08;
-      z-index: -1;
-    }
-    .login-page-bg {
-      position: fixed; inset: 0; z-index: -2;
-      background: url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=1400&q=80') center/cover;
-      filter: blur(4px) brightness(.4);
-    }
-    .login-card {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      padding: 3rem 2.5rem;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: var(--shadow-lg);
-      margin: 1.5rem;
-    }
-    [data-theme="dark"] .login-card { background: var(--cream); }
-    .login-logo {
-      font-family: var(--font-display);
-      font-size: 1.8rem;
-      color: var(--wood-dark);
-      text-align: center;
-      margin-bottom: .3rem;
-    }
-    [data-theme="dark"] .login-logo { color: var(--sand); }
-    .login-subtitle {
-      text-align: center;
-      font-size: .85rem;
-      color: var(--gray);
-      margin-bottom: 2rem;
-    }
-    .login-back {
-      display: block;
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: .85rem;
-      color: var(--gray);
-      transition: color var(--transition);
-    }
-    .login-back:hover { color: var(--wood); }
-  </style>
+  <link rel="stylesheet" href="css/admin.css">
 </head>
-<body>
-  <div class="login-page-bg"></div>
-  <div id="toast-container"></div>
+<body class="admin-page">
 
-  <div class="login-card">
-    <div class="login-logo">Cielito Lindo</div>
-    <div class="login-subtitle">Ingresá para gestionar tus reservas</div>
+<div id="toast-container"></div>
 
-    <div class="modal-tabs">
-      <button class="modal-tab active" onclick="switchTab('login', this)">Ingresar</button>
-      <button class="modal-tab" onclick="switchTab('register', this)">Registrarse</button>
+<!-- ── LOADER ── -->
+<div id="page-loader">
+  <div class="loader-logo">Cielito Lindo</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- ── AUTH GUARD ── -->
+<div id="auth-guard" style="display:none; position:fixed; inset:0; background:var(--beige); z-index:9998; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
+  <div style="font-family:var(--font-display);font-size:2rem;color:var(--wood-dark);">Acceso restringido</div>
+  <p style="color:var(--gray);">Esta página es solo para administradores.</p>
+  <a href="index.html" style="padding:.8rem 2rem;background:var(--wood);color:white;border-radius:99px;font-size:.9rem;">Volver al inicio</a>
+</div>
+
+<div id="admin-app" style="display:none;">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar__logo">
+      Cielito Lindo
+      <div class="admin-sidebar__subtitle">Panel de Administración</div>
+    </div>
+    <nav class="admin-nav">
+      <div class="admin-nav-item active" data-tab="dashboard">
+        <span class="admin-nav-item__icon">📊</span> Dashboard
+      </div>
+      <div class="admin-nav-item" data-tab="bookings">
+        <span class="admin-nav-item__icon">📅</span> Reservas
+      </div>
+      <div class="admin-nav-item" data-tab="calendar">
+        <span class="admin-nav-item__icon">🗓️</span> Calendario
+      </div>
+      <div class="admin-nav-item" data-tab="block">
+        <span class="admin-nav-item__icon">🔒</span> Bloquear fechas
+      </div>
+      <div class="admin-nav-item" data-tab="settings">
+        <span class="admin-nav-item__icon">⚙️</span> Configuración
+      </div>
+      <div class="admin-nav-item" data-tab="gallery-tab">
+        <span class="admin-nav-item__icon">🖼️</span> Galería
+      </div>
+      <div class="admin-nav-item" data-tab="reviews-tab">
+        <span class="admin-nav-item__icon">⭐</span> Reseñas
+      </div>
+      <div class="admin-nav-item" style="margin-top:auto;" onclick="goToSite()">
+        <span class="admin-nav-item__icon">🏠</span> Ver sitio
+      </div>
+      <div class="admin-nav-item" onclick="Auth.logout().then(()=>location.href='index.html')">
+        <span class="admin-nav-item__icon">🚪</span> Cerrar sesión
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="admin-main">
+    <div class="admin-header">
+      <button class="admin-mobile-toggle" id="sidebar-toggle" aria-label="Menú">☰</button>
+      <h1 class="admin-header__title" id="admin-page-title">Dashboard</h1>
+      <div style="display:flex;align-items:center;gap:.8rem;">
+        <span style="font-size:.85rem;color:var(--gray);" id="admin-user-name"></span>
+        <button class="btn-theme" id="admin-theme-toggle" aria-label="Tema">🌙</button>
+      </div>
     </div>
 
-    <!-- Login -->
-    <div class="modal-tab-content active" id="tab-login">
-      <button class="btn-google" onclick="loginGoogle()">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Continuar con Google
-      </button>
-      <div class="divider-or">o con email</div>
-      <div class="form-field">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-input" id="l-email" placeholder="tu@email.com" autocomplete="email">
+    <!-- DASHBOARD TAB -->
+    <div class="admin-tab-content active" id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__label">Reservas activas</div>
+          <div class="stat-card__value" id="stat-active">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Este mes</div>
+          <div class="stat-card__value" id="stat-month">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Ingresos totales</div>
+          <div class="stat-card__value" id="stat-revenue">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Total reservas</div>
+          <div class="stat-card__value" id="stat-total">—</div>
+        </div>
       </div>
-      <div class="form-field">
-        <label class="form-label">Contraseña</label>
-        <input type="password" class="form-input" id="l-pass" placeholder="••••••••" autocomplete="current-password">
+
+      <!-- Próximas reservas -->
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Próximas reservas</div>
+          <button class="filter-btn active" onclick="Admin.init()">↻ Actualizar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Huésped</th>
+                <th>Email</th>
+                <th>Ingreso</th>
+                <th>Salida</th>
+                <th>Personas</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-tbody">
+              <tr><td colspan="8" class="loading-row"><span class="loader-sm"></span> Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <button class="btn-submit" onclick="doLogin()">Ingresar</button>
     </div>
 
-    <!-- Register -->
-    <div class="modal-tab-content" id="tab-register">
-      <div class="form-field">
-        <label class="form-label">Nombre completo</label>
-        <input type="text" class="form-input" id="r-name" placeholder="Tu nombre" autocomplete="name">
+    <!-- BOOKINGS TAB -->
+    <div class="admin-tab-content" id="tab-bookings">
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Gestión de Reservas</div>
+          <div class="filter-btns">
+            <button class="filter-btn active" data-filter="all">Todas</button>
+            <button class="filter-btn" data-filter="pendiente">Pendientes</button>
+            <button class="filter-btn" data-filter="confirmada">Confirmadas</button>
+            <button class="filter-btn" data-filter="cancelada">Canceladas</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Huésped</th><th>Email</th>
+                <th>Ingreso</th><th>Salida</th><th>Personas</th>
+                <th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-tbody-full">
+              <tr><td colspan="8" class="loading-row"><span class="loader-sm"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="form-field">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-input" id="r-email" placeholder="tu@email.com" autocomplete="email">
-      </div>
-      <div class="form-field">
-        <label class="form-label">Teléfono</label>
-        <input type="tel" class="form-input" id="r-phone" placeholder="+54 9 ..." autocomplete="tel">
-      </div>
-      <div class="form-field">
-        <label class="form-label">Contraseña</label>
-        <input type="password" class="form-input" id="r-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
-      </div>
-      <button class="btn-submit" onclick="doRegister()">Crear cuenta</button>
     </div>
 
-    <a href="index.html" class="login-back">← Volver al sitio</a>
-  </div>
+    <!-- CALENDAR TAB -->
+    <div class="admin-tab-content" id="tab-calendar">
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Calendario de ocupación</div>
+        </div>
+        <div id="admin-calendar"></div>
+      </div>
+    </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- BLOCK DATES TAB -->
+    <div class="admin-tab-content" id="tab-block">
+      <div class="admin-card" style="max-width:520px;">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Bloquear fechas</div>
+        </div>
+        <p style="font-size:.9rem;color:var(--gray);margin-bottom:1.5rem;">
+          Bloqueá fechas para mantenimiento, uso personal u otras razones.
+        </p>
+        <div class="admin-form-row">
+          <div class="form-field">
+            <label class="form-label">Fecha inicio</label>
+            <input type="date" class="form-input" id="block-start">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Fecha fin</label>
+            <input type="date" class="form-input" id="block-end">
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Motivo (opcional)</label>
+          <input type="text" class="form-input" id="block-reason" placeholder="Mantenimiento, uso personal...">
+        </div>
+        <button class="btn-save" onclick="Admin.blockDatesHandler()" style="width:100%;padding:1rem;border-radius:var(--radius);">
+          Bloquear fechas
+        </button>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="admin-tab-content" id="tab-settings">
+      <div class="admin-card" style="max-width:500px;">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Precio por noche</div>
+        </div>
+        <p style="font-size:.9rem;color:var(--gray);margin-bottom:1.5rem;">
+          Actualizá el precio por noche de la cabaña.
+        </p>
+        <div class="price-input-wrap">
+          <span style="font-size:1.1rem;color:var(--gray);">$</span>
+          <input type="number" id="admin-price-input" min="1000" step="500" placeholder="45000">
+          <button class="btn-save" onclick="Admin.updatePrice()">Guardar precio</button>
+        </div>
+      </div>
+
+      <div class="admin-card" style="max-width:500px;margin-top:1.5rem;">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Descripción de la cabaña</div>
+        </div>
+        <div class="form-field">
+          <textarea class="form-input" id="admin-desc" rows="4"
+            placeholder="Descripción de la cabaña..."></textarea>
+        </div>
+        <button class="btn-save" onclick="saveDescription()" style="width:100%;padding:.9rem;border-radius:var(--radius);">
+          Guardar descripción
+        </button>
+      </div>
+    </div>
+
+    <!-- GALLERY TAB -->
+    <div class="admin-tab-content" id="tab-gallery-tab">
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Imágenes de la cabaña</div>
+        </div>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('img-upload').click()">
+          <div class="upload-zone__icon">📸</div>
+          <div class="upload-zone__text">
+            <strong>Hacé clic para subir imágenes</strong><br>
+            <span style="font-size:.82rem;color:var(--gray-light);">JPG, PNG, WebP — Máx. 5MB</span>
+          </div>
+        </div>
+        <input type="file" id="img-upload" accept="image/*" style="display:none;"
+          onchange="handleImageUpload(event)">
+        <div class="upload-progress-bar">
+          <div id="upload-progress"></div>
+        </div>
+        <div class="admin-gallery" id="admin-gallery">
+          <span class="loader-sm"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS TAB -->
+    <div class="admin-tab-content" id="tab-reviews-tab">
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <div class="admin-card__title">Reseñas de huéspedes</div>
+          <button class="filter-btn active" onclick="loadAdminReviews()">↻ Actualizar</button>
+        </div>
+        <div id="admin-reviews-list">
+          <div style="text-align:center;padding:2rem;"><span class="loader-sm"></span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- /admin-app -->
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="js/firebase-config.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    // Redirect if already logged in
-    Auth.init((user, role) => {
-      if (user) {
-        const redirect = new URLSearchParams(location.search).get('redirect') || 'index.html';
-        window.location.href = redirect;
-      }
-    });
 
-    function switchTab(tab, btn) {
-      document.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(`tab-${tab}`)?.classList.add('active');
-    }
-
-    async function doLogin() {
-      const email = document.getElementById('l-email').value.trim();
-      const pass = document.getElementById('l-pass').value;
-      if (!email || !pass) { Toast.show('Completá los campos', 'warning'); return; }
-      const r = await Auth.login(email, pass);
-      if (r.ok) window.location.href = new URLSearchParams(location.search).get('redirect') || 'index.html';
-    }
-
-    async function doRegister() {
-      const nombre = document.getElementById('r-name').value.trim();
-      const email = document.getElementById('r-email').value.trim();
-      const telefono = document.getElementById('r-phone').value.trim();
-      const pass = document.getElementById('r-pass').value;
-      if (!nombre || !email || !pass) { Toast.show('Completá los campos obligatorios', 'warning'); return; }
-      const r = await Auth.register({ nombre, email, telefono, password: pass });
-      if (r.ok) window.location.href = 'index.html';
-    }
-
-    async function loginGoogle() {
-      const r = await Auth.loginWithGoogle();
-      if (r.ok) window.location.href = 'index.html';
-    }
-
-    document.addEventListener('keydown', e => {
-      if (e.key !== 'Enter') return;
-      const active = document.querySelector('.modal-tab-content.active');
-      if (active?.id === 'tab-login') doLogin();
-      if (active?.id === 'tab-register') doRegister();
-    });
-
-    // Theme
-    const t = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', t);
-  </script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/bookings.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/admin-page.js"></script>
 </body>
 </html>

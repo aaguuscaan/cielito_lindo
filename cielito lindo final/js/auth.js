@@ -1,23 +1,6 @@
-import {
-  auth,
-  db
-} from "./firebase-config.js";
-
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  GoogleAuthProvider,
-  signInWithPopup,
-  updateProfile
-} from "firebase/auth";
-
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp
-} from "firebase/firestore";
+// ============================================================
+// AUTH.JS — Firebase Compat
+// ============================================================
 
 let currentUser = null;
 let userRole = null;
@@ -30,13 +13,11 @@ function init(onAuthChange) {
     if (user) {
       currentUser = user;
       userRole = await getUserRole(user.uid);
-
       onAuthChange?.(user, userRole);
       updateNavUI(user, userRole);
     } else {
       currentUser = null;
       userRole = null;
-
       onAuthChange?.(null, null);
       updateNavUI(null, null);
     }
@@ -48,12 +29,10 @@ function init(onAuthChange) {
 // ─────────────────────────────────────────────
 async function getUserRole(uid) {
   try {
-    const ref = doc(db, "users", uid);
-    const snap = await getDoc(ref);
-
-    return snap.exists() ? snap.data().role : "client";
+    const snap = await db.collection('users').doc(uid).get();
+    return snap.exists ? snap.data().role : 'client';
   } catch {
-    return "client";
+    return 'client';
   }
 }
 
@@ -62,26 +41,20 @@ async function getUserRole(uid) {
 // ─────────────────────────────────────────────
 async function register({ nombre, email, telefono, password }) {
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-
-    await updateProfile(cred.user, {
-      displayName: nombre
-    });
-
-    await setDoc(doc(db, "users", cred.user.uid), {
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    await cred.user.updateProfile({ displayName: nombre });
+    await db.collection('users').doc(cred.user.uid).set({
       nombre,
       email,
-      telefono: telefono || "",
-      role: "client",
-      creadoEn: serverTimestamp()
+      telefono: telefono || '',
+      role: 'client',
+      creadoEn: firebase.firestore.FieldValue.serverTimestamp()
     });
-
-    Toast.show("¡Cuenta creada con éxito!", "success");
-
+    Toast.show('¡Cuenta creada con éxito!', 'success');
     return { ok: true, user: cred.user };
   } catch (e) {
     const msg = firebaseErrorMsg(e.code);
-    Toast.show(msg, "error");
+    Toast.show(msg, 'error');
     return { ok: false, error: msg };
   }
 }
@@ -91,15 +64,12 @@ async function register({ nombre, email, telefono, password }) {
 // ─────────────────────────────────────────────
 async function login(email, password) {
   try {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-
-    Toast.show("¡Bienvenido de vuelta!", "success");
-
+    const cred = await auth.signInWithEmailAndPassword(email, password);
+    Toast.show('¡Bienvenido de vuelta!', 'success');
     return { ok: true, user: cred.user };
   } catch (e) {
     const msg = firebaseErrorMsg(e.code);
-    Toast.show(msg, "error");
-
+    Toast.show(msg, 'error');
     return { ok: false, error: msg };
   }
 }
@@ -109,29 +79,23 @@ async function login(email, password) {
 // ─────────────────────────────────────────────
 async function loginWithGoogle() {
   try {
-    const provider = new GoogleAuthProvider();
-    const cred = await signInWithPopup(auth, provider);
-
-    const ref = doc(db, "users", cred.user.uid);
-    const snap = await getDoc(ref);
-
-    if (!snap.exists()) {
-      await setDoc(ref, {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const cred = await auth.signInWithPopup(provider);
+    const snap = await db.collection('users').doc(cred.user.uid).get();
+    if (!snap.exists) {
+      await db.collection('users').doc(cred.user.uid).set({
         nombre: cred.user.displayName,
         email: cred.user.email,
-        telefono: "",
-        role: "client",
-        creadoEn: serverTimestamp()
+        telefono: '',
+        role: 'client',
+        creadoEn: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
-
-    Toast.show("¡Bienvenido!", "success");
-
+    Toast.show('¡Bienvenido!', 'success');
     return { ok: true, user: cred.user };
   } catch (e) {
     console.error(e);
-    Toast.show("Error al iniciar con Google", "error");
-
+    Toast.show('Error al iniciar con Google', 'error');
     return { ok: false };
   }
 }
@@ -140,42 +104,30 @@ async function loginWithGoogle() {
 // LOGOUT
 // ─────────────────────────────────────────────
 async function logout() {
-  await signOut(auth);
-  Toast.show("Sesión cerrada", "info");
+  await auth.signOut();
+  Toast.show('Sesión cerrada', 'info');
 }
 
 // ─────────────────────────────────────────────
 // NAV UI
 // ─────────────────────────────────────────────
 function updateNavUI(user, role) {
-  const loginBtn = document.getElementById("nav-login-btn");
-  const userMenu = document.getElementById("nav-user-menu");
-  const adminBtn = document.getElementById("nav-admin-btn");
-  const userName = document.getElementById("nav-user-name");
+  const loginBtn = document.getElementById('nav-login-btn');
+  const userMenu = document.getElementById('nav-user-menu');
+  const adminBtn = document.getElementById('nav-admin-btn');
+  const userName = document.getElementById('nav-user-name');
 
   if (!loginBtn) return;
 
   if (user) {
-    loginBtn.style.display = "none";
-
-    if (userMenu) {
-      userMenu.style.display = "flex";
-    }
-
-    if (userName) {
-      userName.textContent =
-        user.displayName || user.email.split("@")[0];
-    }
-
-    if (adminBtn) {
-      adminBtn.style.display = role === "admin" ? "flex" : "none";
-    }
-
+    loginBtn.style.display = 'none';
+    if (userMenu) userMenu.style.display = 'flex';
+    if (userName) userName.textContent = user.displayName || user.email.split('@')[0];
+    if (adminBtn) adminBtn.style.display = role === 'admin' ? 'flex' : 'none';
   } else {
-    loginBtn.style.display = "flex";
-
-    if (userMenu) userMenu.style.display = "none";
-    if (adminBtn) adminBtn.style.display = "none";
+    loginBtn.style.display = 'flex';
+    if (userMenu) userMenu.style.display = 'none';
+    if (adminBtn) adminBtn.style.display = 'none';
   }
 }
 
@@ -184,22 +136,22 @@ function updateNavUI(user, role) {
 // ─────────────────────────────────────────────
 function firebaseErrorMsg(code) {
   const msgs = {
-    "auth/user-not-found": "No existe una cuenta con ese email",
-    "auth/wrong-password": "Contraseña incorrecta",
-    "auth/email-already-in-use": "Ya existe una cuenta con ese email",
-    "auth/weak-password": "La contraseña debe tener al menos 6 caracteres",
-    "auth/invalid-email": "Email inválido",
-    "auth/too-many-requests": "Demasiados intentos. Intentá más tarde",
-    "auth/network-request-failed": "Error de conexión"
+    'auth/user-not-found': 'No existe una cuenta con ese email',
+    'auth/wrong-password': 'Contraseña incorrecta',
+    'auth/email-already-in-use': 'Ya existe una cuenta con ese email',
+    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres',
+    'auth/invalid-email': 'Email inválido',
+    'auth/too-many-requests': 'Demasiados intentos. Intentá más tarde',
+    'auth/network-request-failed': 'Error de conexión',
+    'auth/invalid-credential': 'Credenciales inválidas'
   };
-
-  return msgs[code] || "Ocurrió un error";
+  return msgs[code] || 'Ocurrió un error';
 }
 
 // ─────────────────────────────────────────────
-// EXPORT
+// EXPORT (objeto global)
 // ─────────────────────────────────────────────
-export const Auth = {
+const Auth = {
   init,
   register,
   login,

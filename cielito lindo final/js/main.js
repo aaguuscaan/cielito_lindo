@@ -1,19 +1,18 @@
 // ============================================================
-// MAIN.JS — Lógica principal del sitio Cielito Lindo
+// MAIN.JS — Lógica principal del sitio (Firebase Compat)
 // ============================================================
-import { Auth } from "./auth.js";
-import { collection, addDoc } from "firebase/firestore";
 
-document.addEventListener("DOMContentLoaded", async () => {
-  Auth.init();
-
+document.addEventListener('DOMContentLoaded', async () => {
+  // Ocultar loader después de un momento
   setTimeout(() => {
-    document.getElementById("page-loader")?.classList.add("hidden");
+    document.getElementById('page-loader')?.classList.add('hidden');
   }, 1800);
+
+  Auth.init();
 
   loadCabinData();
   await Gallery.init();
-  await Calendar.init("calendar-container", onDatesSelected);
+  await Calendar.init('calendar-container', onDatesSelected);
   await Reviews.loadReviews();
   Reviews.initStarInput();
 
@@ -24,55 +23,53 @@ document.addEventListener("DOMContentLoaded", async () => {
   initParallax();
 });
 
-
 // ── Cargar datos de cabaña ────────────────────────────────
 async function loadCabinData() {
   try {
-    import { doc, getDoc } from "firebase/firestore";
+    const snap = await db.collection('cabins').doc('cielito-lindo').get();
+    if (!snap.exists) return;
+    const data = snap.data();
 
-const ref = doc(db, "cabins", "cielito-lindo");
-const snap = await getDoc(ref);
-    if (!doc.exists) return;
-    const data = doc.data();
-
-    const descEl = document.getElementById('cabin-description');
+    const descEl  = document.getElementById('cabin-description');
     if (descEl && data.descripcion) descEl.textContent = data.descripcion;
 
     const priceEl = document.getElementById('price-per-night');
     if (priceEl && data.precio) priceEl.textContent = `$${data.precio.toLocaleString('es-AR')}`;
-  } catch (e) { console.error('Error cargando cabaña:', e); }
+  } catch (e) {
+    console.error('Error cargando cabaña:', e);
+  }
 }
 
-// ── Selección de fechas (callback del calendario) ─────────
-let selectedCheckIn = null;
+// ── Selección de fechas ───────────────────────────────────
+let selectedCheckIn  = null;
 let selectedCheckOut = null;
 
 async function onDatesSelected(start, end) {
-  selectedCheckIn = start;
+  selectedCheckIn  = start;
   selectedCheckOut = end;
 
-  const ciBox = document.getElementById('checkin-box');
-  const coBox = document.getElementById('checkout-box');
   const ciDisp = document.getElementById('checkin-display');
   const coDisp = document.getElementById('checkout-display');
+  const ciBox  = document.getElementById('checkin-box');
+  const coBox  = document.getElementById('checkout-box');
 
   if (ciDisp) ciDisp.textContent = formatDateES(start);
   if (coDisp) coDisp.textContent = formatDateES(end);
-  if (ciBox) ciBox.classList.add('filled');
-  if (coBox) coBox.classList.add('filled');
+  if (ciBox)  ciBox.classList.add('filled');
+  if (coBox)  coBox.classList.add('filled');
 
-  // Calcular precio
   const personas = parseInt(document.getElementById('book-persons')?.value || '2');
   const { total, noches, precioPorNoche } = await Bookings.calculatePrice(start, end, personas);
-  const summary = document.getElementById('booking-summary');
+
+  const summary    = document.getElementById('booking-summary');
   const nightsLabel = document.getElementById('nights-label');
   const nightsPrice = document.getElementById('nights-price');
-  const totalPrice = document.getElementById('total-price');
+  const totalPrice  = document.getElementById('total-price');
 
-  if (summary) summary.classList.add('visible');
+  if (summary)     summary.classList.add('visible');
   if (nightsLabel) nightsLabel.textContent = `${noches} ${noches === 1 ? 'noche' : 'noches'} × $${precioPorNoche.toLocaleString('es-AR')}`;
   if (nightsPrice) nightsPrice.textContent = `$${total.toLocaleString('es-AR')}`;
-  if (totalPrice) totalPrice.textContent = `$${total.toLocaleString('es-AR')}`;
+  if (totalPrice)  totalPrice.textContent  = `$${total.toLocaleString('es-AR')}`;
 }
 
 // ── Manejar reserva ───────────────────────────────────────
@@ -102,35 +99,36 @@ async function handleBooking() {
 
   const personas = parseInt(document.getElementById('book-persons')?.value || '2');
   const { total } = await Bookings.calculatePrice(selectedCheckIn, selectedCheckOut, personas);
-  const cantidadPersonas = document.getElementById('book-persons')?.value;
-  const notas = document.getElementById('book-notes')?.value;
 
   const result = await Bookings.createBooking({
-    userId: user.uid,
-    userName: user.displayName || user.email.split('@')[0],
-    userEmail: user.email,
+    userId:           Auth.getCurrentUser().uid,
+    userName:         user.displayName || user.email.split('@')[0],
+    userEmail:        user.email,
     telefono,
-    fechaIngreso: selectedCheckIn,
-    fechaSalida: selectedCheckOut,
-    cantidadPersonas,
-    precioTotal: total,
-    notas
+    fechaIngreso:     selectedCheckIn,
+    fechaSalida:      selectedCheckOut,
+    cantidadPersonas: document.getElementById('book-persons')?.value,
+    precioTotal:      total,
+    notas:            document.getElementById('book-notes')?.value
   });
 
   if (btn) { btn.disabled = false; btn.textContent = 'Confirmar reserva'; }
 
   if (result.ok) {
-    // Reset
-    selectedCheckIn = null;
+    selectedCheckIn  = null;
     selectedCheckOut = null;
     Calendar.reset();
-    document.getElementById('checkin-display').textContent = 'Seleccioná';
-    document.getElementById('checkout-display').textContent = 'Seleccioná';
+    const ciDisp = document.getElementById('checkin-display');
+    const coDisp = document.getElementById('checkout-display');
+    if (ciDisp) ciDisp.textContent = 'Seleccioná';
+    if (coDisp) coDisp.textContent = 'Seleccioná';
     document.getElementById('booking-summary')?.classList.remove('visible');
     document.getElementById('checkin-box')?.classList.remove('filled');
     document.getElementById('checkout-box')?.classList.remove('filled');
-    document.getElementById('book-phone').value = '';
-    document.getElementById('book-notes').value = '';
+    const phoneEl = document.getElementById('book-phone');
+    const notesEl = document.getElementById('book-notes');
+    if (phoneEl) phoneEl.value = '';
+    if (notesEl) notesEl.value = '';
 
     Toast.show(`¡Reserva confirmada! ID: #${result.id.slice(-6).toUpperCase()}`, 'success', 5000);
   }
@@ -138,10 +136,10 @@ async function handleBooking() {
 
 // ── Formulario de contacto ────────────────────────────────
 async function sendContactForm() {
-  const name = document.getElementById('contact-name')?.value?.trim();
+  const name  = document.getElementById('contact-name')?.value?.trim();
   const email = document.getElementById('contact-email')?.value?.trim();
   const phone = document.getElementById('contact-phone')?.value?.trim();
-  const msg = document.getElementById('contact-msg')?.value?.trim();
+  const msg   = document.getElementById('contact-msg')?.value?.trim();
 
   if (!name || !email || !msg) {
     Toast.show('Completá los campos obligatorios', 'warning'); return;
@@ -151,20 +149,21 @@ async function sendContactForm() {
   }
 
   try {
-    await addDoc(collection(db, "contactMessages"), {
-  nombre: name,
-  email,
-  telefono: phone,
-  mensaje: msg,
-  fecha: serverTimestamp(),
-  leido: false
-});
+    await db.collection('contactMessages').add({
+      nombre: name,
+      email,
+      telefono: phone,
+      mensaje:  msg,
+      fecha:    firebase.firestore.FieldValue.serverTimestamp(),
+      leido:    false
+    });
     Toast.show('¡Mensaje enviado! Te respondemos pronto.', 'success');
-    document.getElementById('contact-name').value = '';
-    document.getElementById('contact-email').value = '';
-    document.getElementById('contact-phone').value = '';
-    document.getElementById('contact-msg').value = '';
+    ['contact-name','contact-email','contact-phone','contact-msg'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
   } catch (e) {
+    console.error(e);
     Toast.show('Error al enviar el mensaje', 'error');
   }
 }
@@ -191,9 +190,8 @@ document.getElementById('login-modal')?.addEventListener('click', (e) => {
   if (e.target.id === 'login-modal') closeLoginModal();
 });
 
-// Auth handlers
 async function handleLogin() {
-  const email = document.getElementById('login-email')?.value?.trim();
+  const email    = document.getElementById('login-email')?.value?.trim();
   const password = document.getElementById('login-password')?.value;
   if (!email || !password) { Toast.show('Completá los campos', 'warning'); return; }
   const result = await Auth.login(email, password);
@@ -201,8 +199,8 @@ async function handleLogin() {
 }
 
 async function handleRegister() {
-  const nombre = document.getElementById('reg-name')?.value?.trim();
-  const email = document.getElementById('reg-email')?.value?.trim();
+  const nombre   = document.getElementById('reg-name')?.value?.trim();
+  const email    = document.getElementById('reg-email')?.value?.trim();
   const telefono = document.getElementById('reg-phone')?.value?.trim();
   const password = document.getElementById('reg-password')?.value;
   if (!nombre || !email || !password) { Toast.show('Completá los campos obligatorios', 'warning'); return; }
@@ -210,21 +208,17 @@ async function handleRegister() {
   if (result.ok) closeLoginModal();
 }
 
-// Enter key en login
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    const modal = document.getElementById('login-modal');
-    if (!modal?.classList.contains('active')) return;
-    const activeTab = document.querySelector('.modal-tab-content.active');
-    if (activeTab?.id === 'tab-login') handleLogin();
-    if (activeTab?.id === 'tab-register') handleRegister();
-  }
+  if (e.key !== 'Enter') return;
+  const modal = document.getElementById('login-modal');
+  if (!modal?.classList.contains('active')) return;
+  const activeTab = document.querySelector('.modal-tab-content.active');
+  if (activeTab?.id === 'tab-login')    handleLogin();
+  if (activeTab?.id === 'tab-register') handleRegister();
 });
 
-
-// Actualizar precio al cambiar personas
 document.addEventListener('change', async (e) => {
-  if (e.target && e.target.id === 'book-persons' && selectedCheckIn && selectedCheckOut) {
+  if (e.target?.id === 'book-persons' && selectedCheckIn && selectedCheckOut) {
     await onDatesSelected(selectedCheckIn, selectedCheckOut);
   }
 });
@@ -233,17 +227,15 @@ document.addEventListener('change', async (e) => {
 function initNavbar() {
   const navbar = document.getElementById('navbar');
   if (!navbar) return;
-  const onScroll = () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 60);
-  };
+  const onScroll = () => navbar.classList.toggle('scrolled', window.scrollY > 60);
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 }
 
 // ── Hamburger ─────────────────────────────────────────────
 function initHamburger() {
-  const btn = document.getElementById('hamburger');
-  const links = document.getElementById('nav-links');
+  const btn      = document.getElementById('hamburger');
+  const links    = document.getElementById('nav-links');
   const closeBtn = document.getElementById('close-menu');
 
   btn?.addEventListener('click', () => {
@@ -281,21 +273,20 @@ function initParallax() {
   const bg = document.getElementById('hero-bg');
   if (!bg || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    if (y < window.innerHeight) {
-      bg.style.transform = `scale(1.05) translateY(${y * 0.2}px)`;
+    if (window.scrollY < window.innerHeight) {
+      bg.style.transform = `scale(1.05) translateY(${window.scrollY * 0.2}px)`;
     }
   }, { passive: true });
 }
 
 // ── Theme ─────────────────────────────────────────────────
 function initTheme() {
-  const btn = document.getElementById('theme-toggle');
+  const btn   = document.getElementById('theme-toggle');
   const saved = localStorage.getItem('theme') || 'light';
   applyTheme(saved);
   btn?.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'dark' ? 'light' : 'dark';
+    const next    = current === 'dark' ? 'light' : 'dark';
     applyTheme(next);
     localStorage.setItem('theme', next);
   });
@@ -306,6 +297,41 @@ function applyTheme(theme) {
   const btn = document.getElementById('theme-toggle');
   if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
+
+// ── Toast ─────────────────────────────────────────────────
+const Toast = (() => {
+  let container = null;
+
+  function getContainer() {
+    if (!container) {
+      container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;';
+        document.body.appendChild(container);
+      }
+    }
+    return container;
+  }
+
+  function show(message, type = 'info', duration = 3500) {
+    const c = getContainer();
+    const toast = document.createElement('div');
+    const colors = { success: '#2e7d32', error: '#c62828', warning: '#e65100', info: '#1565c0' };
+    toast.style.cssText = `background:${colors[type]||colors.info};color:#fff;padding:.75rem 1.25rem;border-radius:.5rem;font-size:.9rem;max-width:320px;box-shadow:0 4px 12px rgba(0,0,0,.2);opacity:0;transform:translateX(1rem);transition:all .3s;`;
+    toast.textContent = message;
+    c.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(0)'; });
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(1rem)';
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
+  return { show };
+})();
 
 // ── Utils ─────────────────────────────────────────────────
 function formatDateES(dateStr) {
